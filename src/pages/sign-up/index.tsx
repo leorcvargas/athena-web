@@ -2,7 +2,7 @@ import React from 'react';
 import { NextPage } from 'next';
 import Head from 'next/head';
 
-import { SignUp } from '../../features/sign-up';
+import { SignUp } from '../../features/signup';
 
 const SignUpPage: NextPage = () => (
   <>
