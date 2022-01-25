@@ -1,14 +1,14 @@
+import React from 'react';
 import { Box, Button, Heading, Main } from 'grommet';
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { useState } from 'react';
 
-import { useAppDispatch, useAppSelector } from '../lib/hooks';
+import { useAppDispatch, useAppSelector } from '../app/hooks';
 import {
   decrement,
   increment,
   selectCount,
-} from '../store/counter/counterSlice';
+} from '../features/counter/counterSlice';
 
 const Home: NextPage = () => {
   const dispatch = useAppDispatch();
@@ -36,7 +36,7 @@ const Home: NextPage = () => {
           >
             <Heading>Counter: {count}</Heading>
 
-            <Box pad="medium" direction="row" justify='between'>
+            <Box pad="medium" direction="row" justify="between">
               <Button
                 primary
                 label="Increment"
