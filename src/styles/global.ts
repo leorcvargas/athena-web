@@ -6,4 +6,9 @@ export default createGlobalStyle`
     padding: 0;
     box-sizing: border-box;
   }
+  body {
+    background: ${props => props.theme.global?.colors?.background};
+    color: ${props => props.theme.global?.colors?.text};
+    font: 400 16px Roboto, sans-serif;
+  }
 `;

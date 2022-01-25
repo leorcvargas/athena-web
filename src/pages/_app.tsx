@@ -1,3 +1,4 @@
+import React from 'react';
 import { Grommet } from 'grommet';
 import type { AppProps } from 'next/app';
 import { Provider } from 'react-redux';

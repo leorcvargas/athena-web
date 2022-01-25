@@ -9,9 +9,7 @@
     "plugin:react/recommended",
     "standard",
     "plugin:@typescript-eslint/recommended",
-    "prettier/@typescript-eslint",
-    "prettier/standard",
-    "prettier/react"
+    "prettier"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -23,12 +21,13 @@
   },
   "plugins": [
     "react",
-    "@typescript-eslint",
+    "@typescript-eslint/eslint-plugin",
     "prettier"
   ],
   "rules": {
     "prettier/prettier": "error",
     "space-before-function-paren": "off",
-    "react/prop-types": "off"
+    "react/prop-types": "off",
+    "@typescript-eslint/no-unused-vars": ["error"]
   }
 }
