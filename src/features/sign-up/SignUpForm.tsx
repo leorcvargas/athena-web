@@ -2,18 +2,20 @@ import React from 'react';
 import { Anchor, Box, Button, Form, FormField, TextInput } from 'grommet';
 import Link from 'next/link';
 
-interface LoginFormValue {
+interface SignUpFormValue {
+  email: string;
   username: string;
   password: string;
 }
 
-const initialValue: LoginFormValue = {
+const initialValue: SignUpFormValue = {
+  email: '',
   username: '',
   password: '',
 };
 
-const LoginForm: React.FC = () => {
-  const [value, setValue] = React.useState<LoginFormValue>(initialValue);
+const SignUpForm: React.FC = () => {
+  const [value, setValue] = React.useState<SignUpFormValue>(initialValue);
 
   return (
     <Form
@@ -23,6 +25,15 @@ const LoginForm: React.FC = () => {
       onSubmit={({ value }) => console.log(value)}
       messages={{ required: 'Required' }}
     >
+      <FormField
+        name="email"
+        htmlFor="text-input-email"
+        label="E-mail"
+        required={{ indicator: true }}
+      >
+        <TextInput id="text-input-email" name="email" type="email" />
+      </FormField>
+
       <FormField
         name="username"
         htmlFor="text-input-username"
@@ -65,13 +76,13 @@ const LoginForm: React.FC = () => {
         margin={{ top: 'medium' }}
         fill="horizontal"
       >
-        <Button type="submit" primary label="Sign in" fill />
-        <Link href="/sign-up">
-          <Anchor label="Create an account" />
+        <Button type="submit" primary label="Create account" fill />
+        <Link href="/login">
+          <Anchor label="Sign in" />
         </Link>
       </Box>
     </Form>
   );
 };
 
-export default LoginForm;
+export default SignUpForm;
