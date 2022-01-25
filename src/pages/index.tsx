@@ -1,9 +1,19 @@
-import { Button } from 'grommet'
-import type { NextPage } from 'next'
-import Head from 'next/head'
-import Image from 'next/image'
+import { Box, Button, Heading, Main } from 'grommet';
+import type { NextPage } from 'next';
+import Head from 'next/head';
+import { useState } from 'react';
+
+import { useAppDispatch, useAppSelector } from '../lib/hooks';
+import {
+  decrement,
+  increment,
+  selectCount,
+} from '../store/counter/counterSlice';
 
 const Home: NextPage = () => {
+  const dispatch = useAppDispatch();
+  const count = useAppSelector(selectCount);
+
   return (
     <div>
       <Head>
@@ -12,11 +22,38 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main>
-        <Button primary label='Click me!' />
-      </main>
-    </div>
-  )
-}
+      <Main pad="large">
+        <Box
+          direction="column"
+          border={{ color: 'brand', size: 'large' }}
+          pad="medium"
+        >
+          <Box
+            pad="small"
+            align="center"
+            direction="column"
+            background="light-3"
+          >
+            <Heading>Counter: {count}</Heading>
 
-export default Home
+            <Box pad="medium" direction="row" justify='between'>
+              <Button
+                primary
+                label="Increment"
+                draggable
+                onClick={() => dispatch(increment())}
+              />
+              <Button
+                secondary
+                label="Decrement"
+                onClick={() => dispatch(decrement())}
+              />
+            </Box>
+          </Box>
+        </Box>
+      </Main>
+    </div>
+  );
+};
+
+export default Home;
