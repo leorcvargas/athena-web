@@ -3,17 +3,15 @@ import { Avatar, Box, Button, DropButton, Nav, Sidebar } from 'grommet';
 import * as Icons from 'grommet-icons';
 import { useRouter } from 'next/router';
 
+import client from '../app/apollo-client';
 import { destroyAccessToken } from '../services/auth';
-import { useAppDispatch } from '../app/hooks';
-import { resetUser } from '../features/user/userSlicer';
 
 const AppSidebar: React.FC = () => {
-  const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const logout = () => {
+  const logout = async () => {
+    await client.clearStore();
     destroyAccessToken();
-    dispatch(resetUser());
     router.push('/login');
   };
 

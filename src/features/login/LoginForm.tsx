@@ -1,3 +1,4 @@
+import { ApolloError, useMutation } from '@apollo/client';
 import React from 'react';
 import {
   Anchor,
@@ -10,9 +11,10 @@ import {
 } from 'grommet';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { AxiosError } from 'axios';
 
-import { login } from '../../services/auth';
+import { storeAccessToken } from '../../services/auth';
+import { loginMutationGql } from './gql/login.mutation';
+import type { LoginInput, LoginPayload } from './gql/login.mutation';
 
 interface LoginFormValue {
   username: string;
@@ -25,36 +27,47 @@ const initialValue: LoginFormValue = {
 };
 
 const LoginForm: React.FC = () => {
+  const [loginMutation, { loading, reset }] = useMutation<
+    LoginPayload,
+    LoginInput
+  >(loginMutationGql);
   const router = useRouter();
   const [value, setValue] = React.useState<LoginFormValue>(initialValue);
-  const [submitting, setSubmitting] = React.useState(false);
   const [errors, setErrors] = React.useState(initialValue);
 
   const onSubmit = async (e: FormExtendedEvent<LoginFormValue, Element>) => {
-    setSubmitting(true);
-    setErrors({ username: '', password: '' });
-
-    const { username, password } = e.value;
-
+    setErrors({ ...initialValue });
     try {
-      await login({ username, password });
+      const { username, password } = e.value;
+      const input = { username, password };
+
+      const { data } = await loginMutation({ variables: { input } });
+
+      storeAccessToken(data?.login?.accessToken ?? '');
       router.push('/app');
     } catch (error) {
-      const { response } = error as AxiosError;
+      const { graphQLErrors } = error as ApolloError;
+      const [e] = graphQLErrors;
 
-      if (response?.status === 404) {
-        setErrors({ ...initialValue, username: 'User not found' });
+      if (e.extensions.code === 'UNAUTHENTICATED') {
+        setErrors({
+          ...initialValue,
+          password: 'Incorrect username or password',
+        });
         return;
       }
 
-      if (response?.status === 401) {
-        setErrors({ ...initialValue, password: 'Invalid password' });
+      if (e.extensions.code === '404') {
+        setErrors({
+          ...initialValue,
+          username: 'User not found',
+        });
         return;
       }
 
       setErrors({ ...initialValue, password: 'Unexpected error from server.' });
     } finally {
-      setSubmitting(false);
+      reset();
     }
   };
 
@@ -116,7 +129,7 @@ const LoginForm: React.FC = () => {
             primary
             label="Sign in"
             fill
-            disabled={submitting}
+            disabled={loading}
           />
           <Link href="/sign-up">
             <Anchor label="Create an account" />
