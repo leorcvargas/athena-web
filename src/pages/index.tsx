@@ -1,19 +1,11 @@
-import { Box, Button, Heading, Main } from 'grommet';
+import React from 'react';
+import { Box, Button, Main } from 'grommet';
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { useState } from 'react';
 
-import { useAppDispatch, useAppSelector } from '../lib/hooks';
-import {
-  decrement,
-  increment,
-  selectCount,
-} from '../store/counter/counterSlice';
+import Link from 'next/link';
 
 const Home: NextPage = () => {
-  const dispatch = useAppDispatch();
-  const count = useAppSelector(selectCount);
-
   return (
     <div>
       <Head>
@@ -24,32 +16,20 @@ const Home: NextPage = () => {
 
       <Main pad="large">
         <Box
-          direction="column"
+          direction="row"
           border={{ color: 'brand', size: 'large' }}
           pad="medium"
+          fill
+          gap="small"
+          justify="center"
         >
-          <Box
-            pad="small"
-            align="center"
-            direction="column"
-            background="light-3"
-          >
-            <Heading>Counter: {count}</Heading>
+          <Link href="/login">
+            <Button label="Sign in" />
+          </Link>
 
-            <Box pad="medium" direction="row" justify='between'>
-              <Button
-                primary
-                label="Increment"
-                draggable
-                onClick={() => dispatch(increment())}
-              />
-              <Button
-                secondary
-                label="Decrement"
-                onClick={() => dispatch(decrement())}
-              />
-            </Box>
-          </Box>
+          <Link href="/sign-up">
+            <Button primary label="Sign up" />
+          </Link>
         </Box>
       </Main>
     </div>

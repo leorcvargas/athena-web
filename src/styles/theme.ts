@@ -1,16 +1,15 @@
 import { ThemeType } from 'grommet';
+import { grommet } from 'grommet/themes/grommet';
 
 const theme: ThemeType = {
+  ...grommet,
   global: {
+    ...grommet.global,
     font: {
+      ...grommet.global?.font,
       family: 'Roboto',
       size: '14px',
       height: '20px',
-    },
-    colors: {
-      text: '#121214',
-      background: '#e1e1e6',
-      primary: '#8257e6',
     },
   },
 };
