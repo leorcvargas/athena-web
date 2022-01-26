@@ -1,30 +1,28 @@
+import { useQuery } from '@apollo/client';
 import React from 'react';
 import { Card, CardBody, CardHeader, Heading, Main } from 'grommet';
 
 import LoginForm from './LoginForm';
 import { LoginBodyStyle } from './Login.styles';
 import { useRouter } from 'next/router';
-import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { getUserProfile, selectUser } from '../user/userSlicer';
+import { profileQueryGql } from '../user/gql/profile.query';
+import type { ProfileQueryPayload } from '../user/gql/profile.query';
 
 const Login: React.FC = () => {
   const router = useRouter();
-  const dispatch = useAppDispatch();
-  const { profile } = useAppSelector(selectUser);
+  const { data, loading, error } =
+    useQuery<ProfileQueryPayload>(profileQueryGql);
 
   React.useEffect(() => {
-    dispatch(getUserProfile());
-  }, []);
+    if (loading) return;
+    if (error) return;
 
-  React.useEffect(() => {
-    if (profile.pending || profile.error) {
-      return;
-    }
-
-    if (!profile.pending && profile.data.id) {
+    if (data?.profile?.id) {
       router.push('/app');
     }
-  }, [profile.data, profile.error, profile.pending]);
+  }, [data, error, loading]);
+
+  if (loading) return null;
 
   return (
     <>

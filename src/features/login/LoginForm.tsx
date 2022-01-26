@@ -14,7 +14,7 @@ import { useRouter } from 'next/router';
 
 import { storeAccessToken } from '../../services/auth';
 import { loginMutationGql } from './gql/login.mutation';
-import { LoginInput, LoginPayload } from './gql/login.types';
+import type { LoginInput, LoginPayload } from './gql/login.mutation';
 
 interface LoginFormValue {
   username: string;
