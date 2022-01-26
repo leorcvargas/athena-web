@@ -38,7 +38,7 @@ const LoginForm: React.FC = () => {
 
     try {
       await login({ username, password });
-      router.push('/');
+      router.push('/app');
     } catch (error) {
       const { response } = error as AxiosError;
 
