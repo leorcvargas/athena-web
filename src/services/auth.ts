@@ -20,10 +20,13 @@ const localTokenKey = 'access-token';
 
 const storeAccessToken = ({ data }: AxiosResponse<LoginResponse>) => {
   localStorage.setItem(localTokenKey, data.accessToken);
-  api.defaults.headers.common.Authorization = `Bearer ${data.accessToken}`;
 };
 
-export const getToken = () => localStorage.getItem(localTokenKey);
+export const destroyAccessToken = () => {
+  localStorage.removeItem(localTokenKey);
+};
+
+export const getAccessToken = () => localStorage.getItem(localTokenKey);
 
 export const signUp = (body: SignUpBody) => api.post('/auth/signup', body);
 
