@@ -3,7 +3,7 @@ import { Avatar, Box, Button, DropButton, Nav, Sidebar } from 'grommet';
 import * as Icons from 'grommet-icons';
 import { useRouter } from 'next/router';
 
-import client from '../app/apollo-client';
+import client from '../apollo-client';
 import { destroyAccessToken } from '../services/auth';
 
 const AppSidebar: React.FC = () => {

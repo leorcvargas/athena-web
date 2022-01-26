@@ -3,7 +3,7 @@ import React from 'react';
 import { Grommet } from 'grommet';
 import type { AppProps } from 'next/app';
 
-import client from '../app/apollo-client';
+import client from '../apollo-client';
 import GlobalStyles from '../styles/global';
 import theme from '../styles/theme';
 
