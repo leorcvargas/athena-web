@@ -13,7 +13,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { AxiosError } from 'axios';
 
-import { signUp } from '../../services/signUp';
+import { signUp } from '../../services/auth';
 
 interface SignUpFormValue {
   email: string;
