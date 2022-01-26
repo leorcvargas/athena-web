@@ -1,4 +1,3 @@
-import { AxiosResponse } from 'axios';
 import { api } from './api';
 
 type SignUpBody = {
@@ -18,8 +17,8 @@ type LoginResponse = {
 
 const localTokenKey = 'access-token';
 
-const storeAccessToken = ({ data }: AxiosResponse<LoginResponse>) => {
-  localStorage.setItem(localTokenKey, data.accessToken);
+export const storeAccessToken = (accessToken: string) => {
+  localStorage.setItem(localTokenKey, accessToken);
 };
 
 export const destroyAccessToken = () => {
@@ -31,4 +30,6 @@ export const getAccessToken = () => localStorage.getItem(localTokenKey);
 export const signUp = (body: SignUpBody) => api.post('/auth/signup', body);
 
 export const login = (body: LoginBody) =>
-  api.post<LoginResponse>('/auth/login', body).then(storeAccessToken);
+  api
+    .post<LoginResponse>('/auth/login', body)
+    .then(({ data }) => storeAccessToken(data.accessToken));
