@@ -5,7 +5,7 @@ import { User } from './user.types';
 export type ProfileQueryPayload = { profile: User };
 
 export const profileQueryGql = gql`
-  query {
+  query Profile {
     profile {
       id
       email

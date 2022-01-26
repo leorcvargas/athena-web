@@ -36,6 +36,7 @@ const LoginForm: React.FC = () => {
   const [errors, setErrors] = React.useState(initialValue);
 
   const onSubmit = async (e: FormExtendedEvent<LoginFormValue, Element>) => {
+    setErrors({ ...initialValue });
     try {
       const { username, password } = e.value;
       const input = { username, password };

@@ -1,30 +1,29 @@
+import { useQuery } from '@apollo/client';
 import { Box } from 'grommet';
 import { useRouter } from 'next/router';
 import React from 'react';
 
-import { useAppDispatch, useAppSelector } from '../app/hooks';
-import { getUserProfile, selectUser } from '../features/user/userSlicer';
+import {
+  profileQueryGql,
+  ProfileQueryPayload,
+} from '../features/user/gql/profile.query';
 import AppHeader from './AppHeader';
 import AppSidebar from './AppSidebar';
 
 const Layout: React.FC = ({ children }) => {
   const router = useRouter();
-  const dispatch = useAppDispatch();
-  const { profile } = useAppSelector(selectUser);
+  const { data, loading, error } = useQuery<ProfileQueryPayload>(
+    profileQueryGql,
+    { fetchPolicy: 'network-only' }
+  );
 
   React.useEffect(() => {
-    if (!profile.data.id) {
-      dispatch(getUserProfile());
-    }
-  }, []);
-
-  React.useEffect(() => {
-    if (profile.error) {
+    if (error) {
       router.push('/login');
     }
-  }, [profile.error]);
+  }, [error]);
 
-  if (!profile.data.id || profile.pending) {
+  if (!data?.profile || loading) {
     return null;
   }
 

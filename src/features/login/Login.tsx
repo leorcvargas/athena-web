@@ -10,8 +10,10 @@ import type { ProfileQueryPayload } from '../user/gql/profile.query';
 
 const Login: React.FC = () => {
   const router = useRouter();
-  const { data, loading, error } =
-    useQuery<ProfileQueryPayload>(profileQueryGql);
+  const { data, loading, error } = useQuery<ProfileQueryPayload>(
+    profileQueryGql,
+    { fetchPolicy: 'network-only' }
+  );
 
   React.useEffect(() => {
     if (loading) return;
