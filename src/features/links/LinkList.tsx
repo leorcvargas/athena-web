@@ -6,15 +6,19 @@ import LinkItem from './LinkItem';
 
 interface Props {
   data: UserLink[];
+  onCreate(): void;
+  refetchLinks(): Promise<void>;
 }
 
-const LinkList: React.FC<Props> = ({ data = [] }) => {
+const LinkList: React.FC<Props> = ({ onCreate, refetchLinks, data = [] }) => {
   return (
     <Box direction="column" gap="medium" width="medium">
-      <Button primary label="Create Link" />
+      <Box animation="fadeIn">
+        <Button primary label="Create Link" onClick={onCreate} />
+      </Box>
 
-      {data.map(item => (
-        <LinkItem key={item.id} userLink={item} />
+      {data.map((item, i) => (
+        <LinkItem refetchLinks={refetchLinks} key={i} userLink={item} />
       ))}
     </Box>
   );

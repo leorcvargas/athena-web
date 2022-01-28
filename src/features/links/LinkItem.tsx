@@ -1,27 +1,37 @@
 import { useMutation } from '@apollo/client';
-import { Box, Card, CardBody } from 'grommet';
+import { Button, Card, CardBody, CardFooter, Form } from 'grommet';
+import { Trash, View } from 'grommet-icons';
 import React from 'react';
 
 import {
   UpdateUserLinkInput,
   updateUserLinkMutationGql,
 } from './gql/update-user-link.mutation';
-import { UserLink } from './gql/user-link.types';
+import { UserLink, UserLinkKindEnum } from './gql/user-link.types';
 import { LinkItemTextInput, LinkItemTitleInput } from './LinkItem.styles';
+import {
+  CreateUserLinkInput,
+  createUserLinkMutationGql,
+} from './gql/create-user-link.mutation';
 
 interface Props {
   userLink: UserLink;
+  refetchLinks(): Promise<void>;
 }
 
-const LinkItem: React.FC<Props> = ({ userLink }) => {
+const LinkItem: React.FC<Props> = ({ userLink, refetchLinks }) => {
   const [prevValues, setPrevValues] = React.useState<UserLink>(userLink);
   const [values, setValues] = React.useState<UserLink>(userLink);
   const [editing, setEditing] = React.useState(false);
+  const [created, setCreated] = React.useState(!!userLink.id);
   const hasChanges = React.useMemo(() => {
     return JSON.stringify(prevValues) !== JSON.stringify(values);
   }, [prevValues, values]);
   const [updateUserLinkMutation] = useMutation<UserLink, UpdateUserLinkInput>(
     updateUserLinkMutationGql
+  );
+  const [createUserLinkMutation] = useMutation<UserLink, CreateUserLinkInput>(
+    createUserLinkMutationGql
   );
 
   const buildOnChangeHandler =
@@ -33,7 +43,7 @@ const LinkItem: React.FC<Props> = ({ userLink }) => {
     setEditing(false);
   };
 
-  const onSaveBlur: React.FocusEventHandler<HTMLInputElement> = event => {
+  const onSaveBlur: React.FocusEventHandler<HTMLFormElement> = event => {
     event.preventDefault();
     onSave();
   };
@@ -42,7 +52,6 @@ const LinkItem: React.FC<Props> = ({ userLink }) => {
     event.preventDefault();
 
     if (event.key === 'Enter') {
-      onSave();
       event.currentTarget.blur();
     }
   };
@@ -51,14 +60,34 @@ const LinkItem: React.FC<Props> = ({ userLink }) => {
     setEditing(true);
   };
 
+  const canCreate = () => !!values.title && !!values.url;
+
   const save = async () => {
     try {
-      await updateUserLinkMutation({
-        variables: {
-          input: { id: userLink.id, title: values.title, url: values.url },
-        },
-      });
-      setPrevValues(values);
+      if (!created && canCreate()) {
+        await createUserLinkMutation({
+          variables: {
+            input: {
+              title: values.title,
+              url: values.url,
+              kind: UserLinkKindEnum.BASIC,
+            },
+          },
+        });
+        setCreated(true);
+        setPrevValues(values);
+
+        await refetchLinks();
+
+        return;
+      } else if (created) {
+        await updateUserLinkMutation({
+          variables: {
+            input: { id: userLink.id, title: values.title, url: values.url },
+          },
+        });
+        setPrevValues(values);
+      }
     } catch (error) {
       setValues(userLink);
       setPrevValues(userLink);
@@ -72,33 +101,46 @@ const LinkItem: React.FC<Props> = ({ userLink }) => {
   }, [editing, hasChanges]);
 
   return (
-    <Card round="small" pad="medium" gap="medium" border={{ color: 'light-1' }}>
-      <CardBody gap="small" width="medium">
-        <Box direction="row">
+    <Form onBlur={onSaveBlur} onFocus={onFocus}>
+      <Card
+        direction="row"
+        round="small"
+        gap="medium"
+        border={{ color: 'light-1' }}
+        animation="fadeIn"
+      >
+        <CardBody pad="small" width="medium" gap="small">
           <LinkItemTitleInput
             placeholder="Enter the link title"
             name="title"
             size="medium"
             value={values.title}
-            onFocus={onFocus}
+            onKeyUp={onSaveKeyUp}
             onChange={buildOnChangeHandler('title')}
-            onBlur={onSaveBlur}
+          />
+
+          <LinkItemTextInput
+            placeholder="Enter the link URL"
+            name="url"
+            size="small"
+            value={values.url}
+            onChange={buildOnChangeHandler('url')}
             onKeyUp={onSaveKeyUp}
           />
-        </Box>
-
-        <LinkItemTextInput
-          placeholder="Enter the link URL"
-          name="url"
-          size="small"
-          value={values.url}
-          onFocus={onFocus}
-          onChange={buildOnChangeHandler('url')}
-          onBlur={onSaveBlur}
-          onKeyUp={onSaveKeyUp}
-        />
-      </CardBody>
-    </Card>
+        </CardBody>
+        <CardFooter
+          pad={{ horizontal: 'small' }}
+          background="light-0"
+          border={{ color: 'light-3', side: 'left' }}
+          direction="column"
+          justify="evenly"
+          gap={undefined}
+        >
+          <Button icon={<View color="accent-1" />} hoverIndicator />
+          <Button icon={<Trash color="accent-2" />} hoverIndicator />
+        </CardFooter>
+      </Card>
+    </Form>
   );
 };
 
