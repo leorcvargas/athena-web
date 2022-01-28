@@ -1,5 +1,5 @@
 import React from 'react';
-import { Avatar, Box, Button, DropButton, Nav, Sidebar } from 'grommet';
+import { Avatar, Box, Button, DropButton, Image, Nav, Sidebar } from 'grommet';
 import * as Icons from 'grommet-icons';
 import { useRouter } from 'next/router';
 
@@ -47,8 +47,8 @@ const AppSidebar: React.FC = () => {
       }
     >
       <Nav gap="small" align="center">
+        <Image src="/athena-logo.svg" />
         <Button icon={<Icons.Projects />} hoverIndicator />
-        <Button icon={<Icons.Clock />} hoverIndicator />
       </Nav>
     </Sidebar>
   );
