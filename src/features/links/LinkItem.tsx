@@ -20,6 +20,7 @@ interface Props {
 }
 
 const LinkItem: React.FC<Props> = ({ userLink, refetchLinks }) => {
+  const titleInputRef = React.useRef<HTMLInputElement>(null);
   const [prevValues, setPrevValues] = React.useState<UserLink>(userLink);
   const [values, setValues] = React.useState<UserLink>(userLink);
   const [editing, setEditing] = React.useState(false);
@@ -94,6 +95,12 @@ const LinkItem: React.FC<Props> = ({ userLink, refetchLinks }) => {
     }
   };
 
+  React.useLayoutEffect(() => {
+    if (!created) {
+      titleInputRef?.current?.focus();
+    }
+  }, []);
+
   React.useEffect(() => {
     if (editing || !hasChanges) return;
 
@@ -117,6 +124,7 @@ const LinkItem: React.FC<Props> = ({ userLink, refetchLinks }) => {
             value={values.title}
             onKeyUp={onSaveKeyUp}
             onChange={buildOnChangeHandler('title')}
+            ref={titleInputRef}
           />
 
           <LinkItemTextInput
