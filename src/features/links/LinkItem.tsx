@@ -1,6 +1,11 @@
+import { useMutation } from '@apollo/client';
 import { Box, Card, CardBody } from 'grommet';
 import React from 'react';
 
+import {
+  UpdateUserLinkInput,
+  updateUserLinkMutationGql,
+} from './gql/update-user-link.mutation';
 import { UserLink } from './gql/user-link.types';
 import { LinkItemTextInput, LinkItemTitleInput } from './LinkItem.styles';
 
@@ -15,15 +20,11 @@ const LinkItem: React.FC<Props> = ({ userLink }) => {
   const hasChanges = React.useMemo(() => {
     return JSON.stringify(prevValues) !== JSON.stringify(values);
   }, [prevValues, values]);
+  const [updateUserLinkMutation] = useMutation<UserLink, UpdateUserLinkInput>(
+    updateUserLinkMutationGql
+  );
 
-  React.useEffect(() => {
-    if (editing || !hasChanges) return;
-
-    console.log('saving to api...');
-    setPrevValues(values);
-  }, [editing, hasChanges]);
-
-  const buildOnChange =
+  const buildOnChangeHandler =
     (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
       setValues({ ...values, [field]: event.target.value });
     };
@@ -50,6 +51,26 @@ const LinkItem: React.FC<Props> = ({ userLink }) => {
     setEditing(true);
   };
 
+  const save = async () => {
+    try {
+      await updateUserLinkMutation({
+        variables: {
+          input: { id: userLink.id, title: values.title, url: values.url },
+        },
+      });
+      setPrevValues(values);
+    } catch (error) {
+      setValues(userLink);
+      setPrevValues(userLink);
+    }
+  };
+
+  React.useEffect(() => {
+    if (editing || !hasChanges) return;
+
+    save();
+  }, [editing, hasChanges]);
+
   return (
     <Card round="small" pad="medium" gap="medium" border={{ color: 'light-1' }}>
       <CardBody gap="small" width="medium">
@@ -60,7 +81,7 @@ const LinkItem: React.FC<Props> = ({ userLink }) => {
             size="medium"
             value={values.title}
             onFocus={onFocus}
-            onChange={buildOnChange('title')}
+            onChange={buildOnChangeHandler('title')}
             onBlur={onSaveBlur}
             onKeyUp={onSaveKeyUp}
           />
@@ -72,7 +93,7 @@ const LinkItem: React.FC<Props> = ({ userLink }) => {
           size="small"
           value={values.url}
           onFocus={onFocus}
-          onChange={buildOnChange('url')}
+          onChange={buildOnChangeHandler('url')}
           onBlur={onSaveBlur}
           onKeyUp={onSaveKeyUp}
         />

@@ -11,10 +11,6 @@ const Links: React.FC = () => {
   const { data, loading, error } =
     useQuery<UserLinksQueryResponse>(userLinksQuery);
 
-  React.useEffect(() => {
-    console.log({ data, loading });
-  }, [data, loading]);
-
   return (
     <Main fill>
       <FetchLinksError display={!!error && !loading} />
