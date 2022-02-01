@@ -155,7 +155,7 @@ const LinkItem: React.FC<Props> = ({ userLink, refetchLinks }) => {
       round="small"
       gap="medium"
       border={{ color: 'light-1' }}
-      animation="fadeIn"
+      animation="slideUp"
     >
       <CardBody>
         <Box pad="small" width="medium" gap="small">
@@ -194,11 +194,17 @@ const LinkItem: React.FC<Props> = ({ userLink, refetchLinks }) => {
           <Button
             icon={displayIcon}
             onClick={() => setValues({ ...values, display: !values.display })}
+            disabled={!created}
             hoverIndicator
           />
         </Tip>
         <Tip content="Delete link" dropProps={{ align: { left: 'right' } }}>
-          <Button onClick={onDelete} icon={<Trash color="" />} hoverIndicator />
+          <Button
+            onClick={onDelete}
+            icon={<Trash color="" />}
+            disabled={!created}
+            hoverIndicator
+          />
         </Tip>
       </CardFooter>
     </Card>

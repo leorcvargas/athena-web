@@ -14,7 +14,7 @@ const Links: React.FC = () => {
     useQuery<UserLinksQueryResponse>(userLinksQuery);
 
   const onCreate = () => {
-    const newLinkBoilerplate: any = { title: '', url: '' };
+    const newLinkBoilerplate: any = { title: '', url: '', display: true };
     setLinks([...links, newLinkBoilerplate]);
   };
 

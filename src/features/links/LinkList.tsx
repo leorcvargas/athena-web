@@ -13,12 +13,16 @@ interface Props {
 const LinkList: React.FC<Props> = ({ onCreate, refetchLinks, data = [] }) => {
   return (
     <Box direction="column" gap="medium" width="medium">
-      <Box animation="fadeIn">
-        <Button primary label="Create Link" onClick={onCreate} />
+      <Box>
+        <Button label="Create Link" onClick={onCreate} />
       </Box>
 
       {data.map(item => (
-        <LinkItem refetchLinks={refetchLinks} key={item.id} userLink={item} />
+        <LinkItem
+          refetchLinks={refetchLinks}
+          key={item.id ?? Date.now()}
+          userLink={item}
+        />
       ))}
     </Box>
   );
