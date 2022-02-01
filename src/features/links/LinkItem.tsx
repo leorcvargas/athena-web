@@ -13,6 +13,11 @@ import {
   createUserLinkMutationGql,
   CreateUserLinkVars,
 } from './gql/create-user-link.mutation';
+import {
+  deleteUserLinkMutationGql,
+  DeleteUserLinkVars,
+} from './gql/delete-user-link.mutation';
+import { ResponsePayload } from '../shared/gql/response.payload';
 
 interface Props {
   userLink: UserLink;
@@ -45,6 +50,11 @@ const LinkItem: React.FC<Props> = ({ userLink, refetchLinks }) => {
   const [createUserLinkMutation] = useMutation<UserLink, CreateUserLinkVars>(
     createUserLinkMutationGql
   );
+
+  const [deleteUserLinkMutation] = useMutation<
+    ResponsePayload,
+    DeleteUserLinkVars
+  >(deleteUserLinkMutationGql);
 
   const onBlur: React.FocusEventHandler<HTMLInputElement> = event => {
     event.preventDefault();
@@ -114,6 +124,19 @@ const LinkItem: React.FC<Props> = ({ userLink, refetchLinks }) => {
     }
   };
 
+  const onDelete = async () => {
+    try {
+      const confirmation = confirm(`Do you want to delete ${userLink.title}?`);
+
+      if (!confirmation) return;
+
+      await deleteUserLinkMutation({ variables: { id: userLink.id } });
+      await refetchLinks();
+    } catch (error) {
+      alert(`Error deleting ${userLink.title} link`);
+    }
+  };
+
   React.useEffect(() => {
     if (!created) {
       titleInputRef?.current?.focus();
@@ -175,7 +198,7 @@ const LinkItem: React.FC<Props> = ({ userLink, refetchLinks }) => {
           />
         </Tip>
         <Tip content="Delete link" dropProps={{ align: { left: 'right' } }}>
-          <Button icon={<Trash color="" />} hoverIndicator />
+          <Button onClick={onDelete} icon={<Trash color="" />} hoverIndicator />
         </Tip>
       </CardFooter>
     </Card>

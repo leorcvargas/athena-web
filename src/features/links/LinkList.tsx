@@ -17,8 +17,8 @@ const LinkList: React.FC<Props> = ({ onCreate, refetchLinks, data = [] }) => {
         <Button primary label="Create Link" onClick={onCreate} />
       </Box>
 
-      {data.map((item, i) => (
-        <LinkItem refetchLinks={refetchLinks} key={i} userLink={item} />
+      {data.map(item => (
+        <LinkItem refetchLinks={refetchLinks} key={item.id} userLink={item} />
       ))}
     </Box>
   );
