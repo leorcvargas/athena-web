@@ -1,20 +1,19 @@
 import { gql } from '@apollo/client';
 
-import { UserLinkKindEnum } from './user-link.types';
+import { UserLinkInput } from './user-link.input';
 
-export interface UpdateUserLinkInput {
-  input: {
-    id: string;
-    title?: string;
-    url?: string;
-    kind?: UserLinkKindEnum;
-  };
+export interface UpdateUserLinkVars {
+  id: number;
+  input: UserLinkInput;
 }
 
 export const updateUserLinkMutationGql = gql`
-  mutation update($input: UpdateUserLinkInput!) {
-    updateUserLink(input: $input) {
+  mutation update($id: Int!, $input: UserLinkInput!) {
+    updateUserLink(id: $id, input: $input) {
       id
+      title
+      url
+      display
     }
   }
 `;

@@ -1,17 +1,13 @@
 import { gql } from '@apollo/client';
 
-import { UserLinkKindEnum } from './user-link.types';
+import { UserLinkInput } from './user-link.input';
 
-export interface CreateUserLinkInput {
-  input: {
-    title: string;
-    url: string;
-    kind: UserLinkKindEnum;
-  };
+export interface CreateUserLinkVars {
+  input: UserLinkInput;
 }
 
 export const createUserLinkMutationGql = gql`
-  mutation create($input: CreateUserLinkInput!) {
+  mutation create($input: UserLinkInput!) {
     createUserLink(input: $input) {
       id
     }

@@ -5,12 +5,12 @@ export enum UserLinkKindEnum {
 }
 
 export interface UserLinkKind {
-  id: string;
+  id: number;
   value: UserLinkKindEnum;
 }
 
 export interface UserLink {
-  id: string;
+  id: number;
   url: string;
   title: string;
   user: User | string;

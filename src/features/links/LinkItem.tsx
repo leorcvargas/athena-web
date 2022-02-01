@@ -1,17 +1,17 @@
 import { useMutation } from '@apollo/client';
-import { Button, Card, CardBody, CardFooter, Form } from 'grommet';
+import { Box, Button, Card, CardBody, CardFooter } from 'grommet';
 import { Trash, View } from 'grommet-icons';
 import React from 'react';
 
-import {
-  UpdateUserLinkInput,
-  updateUserLinkMutationGql,
-} from './gql/update-user-link.mutation';
 import { UserLink, UserLinkKindEnum } from './gql/user-link.types';
 import { LinkItemTextInput, LinkItemTitleInput } from './LinkItem.styles';
 import {
-  CreateUserLinkInput,
+  updateUserLinkMutationGql,
+  UpdateUserLinkVars,
+} from './gql/update-user-link.mutation';
+import {
   createUserLinkMutationGql,
+  CreateUserLinkVars,
 } from './gql/create-user-link.mutation';
 
 interface Props {
@@ -28,26 +28,26 @@ const LinkItem: React.FC<Props> = ({ userLink, refetchLinks }) => {
   const hasChanges = React.useMemo(() => {
     return JSON.stringify(prevValues) !== JSON.stringify(values);
   }, [prevValues, values]);
-  const [updateUserLinkMutation] = useMutation<UserLink, UpdateUserLinkInput>(
+
+  const [updateUserLinkMutation] = useMutation<UserLink, UpdateUserLinkVars>(
     updateUserLinkMutationGql
   );
-  const [createUserLinkMutation] = useMutation<UserLink, CreateUserLinkInput>(
+
+  const [createUserLinkMutation] = useMutation<UserLink, CreateUserLinkVars>(
     createUserLinkMutationGql
   );
 
-  const buildOnChangeHandler =
-    (field: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
-      setValues({ ...values, [field]: event.target.value });
-    };
+  const onBlur: React.FocusEventHandler<HTMLInputElement> = event => {
+    event.preventDefault();
 
-  const onSave = () => {
+    setValues({
+      ...values,
+      [event.target.name]: event.target.value,
+    });
     setEditing(false);
   };
 
-  const onSaveBlur: React.FocusEventHandler<HTMLFormElement> = event => {
-    event.preventDefault();
-    onSave();
-  };
+  const onFocus = () => setEditing(true);
 
   const onSaveKeyUp: React.KeyboardEventHandler<HTMLInputElement> = event => {
     event.preventDefault();
@@ -57,45 +57,51 @@ const LinkItem: React.FC<Props> = ({ userLink, refetchLinks }) => {
     }
   };
 
-  const onFocus = () => {
-    setEditing(true);
+  const canCreate = () => !!values.title && !!values.url;
+
+  const update = async () => {
+    await updateUserLinkMutation({
+      variables: {
+        id: userLink.id,
+        input: { title: values.title, url: values.url },
+      },
+    });
+    setPrevValues(values);
   };
 
-  const canCreate = () => !!values.title && !!values.url;
+  const create = async () => {
+    await createUserLinkMutation({
+      variables: {
+        input: {
+          title: values.title,
+          url: values.url,
+          kind: UserLinkKindEnum.BASIC,
+        },
+      },
+    });
+    setCreated(true);
+    setPrevValues(values);
+    await refetchLinks();
+  };
+
+  const onSaveError = () => {
+    setValues(userLink);
+    setPrevValues(userLink);
+  };
 
   const save = async () => {
     try {
       if (!created && canCreate()) {
-        await createUserLinkMutation({
-          variables: {
-            input: {
-              title: values.title,
-              url: values.url,
-              kind: UserLinkKindEnum.BASIC,
-            },
-          },
-        });
-        setCreated(true);
-        setPrevValues(values);
-
-        await refetchLinks();
-
-        return;
+        await create();
       } else if (created) {
-        await updateUserLinkMutation({
-          variables: {
-            input: { id: userLink.id, title: values.title, url: values.url },
-          },
-        });
-        setPrevValues(values);
+        await update();
       }
     } catch (error) {
-      setValues(userLink);
-      setPrevValues(userLink);
+      onSaveError();
     }
   };
 
-  React.useLayoutEffect(() => {
+  React.useEffect(() => {
     if (!created) {
       titleInputRef?.current?.focus();
     }
@@ -108,47 +114,50 @@ const LinkItem: React.FC<Props> = ({ userLink, refetchLinks }) => {
   }, [editing, hasChanges]);
 
   return (
-    <Form onBlur={onSaveBlur} onFocus={onFocus}>
-      <Card
-        direction="row"
-        round="small"
-        gap="medium"
-        border={{ color: 'light-1' }}
-        animation="fadeIn"
-      >
-        <CardBody pad="small" width="medium" gap="small">
+    <Card
+      direction="row"
+      round="small"
+      gap="medium"
+      border={{ color: 'light-1' }}
+      animation="fadeIn"
+    >
+      <CardBody>
+        <Box pad="small" width="medium" gap="small">
           <LinkItemTitleInput
+            ref={titleInputRef}
+            defaultValue={values.title}
             placeholder="Enter the link title"
             name="title"
             size="medium"
-            value={values.title}
             onKeyUp={onSaveKeyUp}
-            onChange={buildOnChangeHandler('title')}
-            ref={titleInputRef}
+            onBlur={onBlur}
+            onFocus={onFocus}
           />
 
           <LinkItemTextInput
             placeholder="Enter the link URL"
+            defaultValue={values.url}
             name="url"
             size="small"
-            value={values.url}
-            onChange={buildOnChangeHandler('url')}
             onKeyUp={onSaveKeyUp}
+            onBlur={onBlur}
+            onFocus={onFocus}
           />
-        </CardBody>
-        <CardFooter
-          pad={{ horizontal: 'small' }}
-          background="light-0"
-          border={{ color: 'light-3', side: 'left' }}
-          direction="column"
-          justify="evenly"
-          gap={undefined}
-        >
-          <Button icon={<View color="accent-1" />} hoverIndicator />
-          <Button icon={<Trash color="accent-2" />} hoverIndicator />
-        </CardFooter>
-      </Card>
-    </Form>
+        </Box>
+      </CardBody>
+
+      <CardFooter
+        pad={{ horizontal: 'small' }}
+        background="light-0"
+        border={{ color: 'light-3', side: 'left' }}
+        direction="column"
+        justify="evenly"
+        gap={undefined}
+      >
+        <Button icon={<View color="accent-1" />} hoverIndicator />
+        <Button icon={<Trash color="accent-2" />} hoverIndicator />
+      </CardFooter>
+    </Card>
   );
 };
 
