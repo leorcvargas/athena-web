@@ -1,6 +1,6 @@
 import { useMutation } from '@apollo/client';
-import { Box, Button, Card, CardBody, CardFooter } from 'grommet';
-import { Trash, View } from 'grommet-icons';
+import { Box, Button, Card, CardBody, CardFooter, Tip } from 'grommet';
+import { Trash, View, Hide } from 'grommet-icons';
 import React from 'react';
 
 import { UserLink, UserLinkKindEnum } from './gql/user-link.types';
@@ -28,6 +28,15 @@ const LinkItem: React.FC<Props> = ({ userLink, refetchLinks }) => {
   const hasChanges = React.useMemo(() => {
     return JSON.stringify(prevValues) !== JSON.stringify(values);
   }, [prevValues, values]);
+  const displayIcon = React.useMemo(
+    () =>
+      values.display ? <View color="accent-1" /> : <Hide color="accent-2" />,
+    [values.display]
+  );
+  const displayTip = React.useMemo(
+    () => (values.display ? 'Hide' : 'Show'),
+    [values.display]
+  );
 
   const [updateUserLinkMutation] = useMutation<UserLink, UpdateUserLinkVars>(
     updateUserLinkMutationGql
@@ -49,7 +58,7 @@ const LinkItem: React.FC<Props> = ({ userLink, refetchLinks }) => {
 
   const onFocus = () => setEditing(true);
 
-  const onSaveKeyUp: React.KeyboardEventHandler<HTMLInputElement> = event => {
+  const onKeyUp: React.KeyboardEventHandler<HTMLInputElement> = event => {
     event.preventDefault();
 
     if (event.key === 'Enter') {
@@ -63,7 +72,11 @@ const LinkItem: React.FC<Props> = ({ userLink, refetchLinks }) => {
     await updateUserLinkMutation({
       variables: {
         id: userLink.id,
-        input: { title: values.title, url: values.url },
+        input: {
+          title: values.title,
+          url: values.url,
+          display: values.display,
+        },
       },
     });
     setPrevValues(values);
@@ -129,7 +142,7 @@ const LinkItem: React.FC<Props> = ({ userLink, refetchLinks }) => {
             placeholder="Enter the link title"
             name="title"
             size="medium"
-            onKeyUp={onSaveKeyUp}
+            onKeyUp={onKeyUp}
             onBlur={onBlur}
             onFocus={onFocus}
           />
@@ -139,7 +152,7 @@ const LinkItem: React.FC<Props> = ({ userLink, refetchLinks }) => {
             defaultValue={values.url}
             name="url"
             size="small"
-            onKeyUp={onSaveKeyUp}
+            onKeyUp={onKeyUp}
             onBlur={onBlur}
             onFocus={onFocus}
           />
@@ -154,8 +167,16 @@ const LinkItem: React.FC<Props> = ({ userLink, refetchLinks }) => {
         justify="evenly"
         gap={undefined}
       >
-        <Button icon={<View color="accent-1" />} hoverIndicator />
-        <Button icon={<Trash color="accent-2" />} hoverIndicator />
+        <Tip content={displayTip} dropProps={{ align: { left: 'right' } }}>
+          <Button
+            icon={displayIcon}
+            onClick={() => setValues({ ...values, display: !values.display })}
+            hoverIndicator
+          />
+        </Tip>
+        <Tip content="Delete link" dropProps={{ align: { left: 'right' } }}>
+          <Button icon={<Trash color="" />} hoverIndicator />
+        </Tip>
       </CardFooter>
     </Card>
   );

@@ -12,6 +12,7 @@ export const userLinksQuery = gql`
       id
       url
       title
+      display
       kind {
         value
       }
