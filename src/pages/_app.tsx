@@ -6,13 +6,24 @@ import type { AppProps } from 'next/app';
 import client from '../apollo-client';
 import GlobalStyles from '../styles/global';
 import theme from '../styles/theme';
+import { NextPage } from 'next';
 
-function MyApp({ Component, pageProps }: AppProps) {
+type NextPageWithLayout = NextPage & {
+  getLayout?: (page: React.ReactElement) => React.ReactNode;
+};
+
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout;
+};
+
+function MyApp({ Component, pageProps }: AppPropsWithLayout) {
+  const getLayout = Component.getLayout ?? (page => page);
+
   return (
     <ApolloProvider client={client}>
       <Grommet theme={theme} full>
         <GlobalStyles />
-        <Component {...pageProps} />
+        {getLayout(<Component {...pageProps} />)}
       </Grommet>
     </ApolloProvider>
   );
