@@ -11,7 +11,10 @@ import {
 } from 'grommet';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { AxiosError } from 'axios';
+import { ApolloError, useMutation } from '@apollo/client';
+
+import { signUpMutationGql, SignUpMutationVars } from './gql/sign-up.mutation';
+import { SignUpPayload } from './gql/sign-up.payload';
 
 interface SignUpFormValue {
   email: string;
@@ -31,19 +34,33 @@ const SignUpForm: React.FC = () => {
   const [value, setValue] = React.useState<SignUpFormValue>(initialValue);
   const [submitting, setSubmitting] = React.useState(false);
 
+  const [signUpMutation] = useMutation<SignUpPayload, SignUpMutationVars>(
+    signUpMutationGql
+  );
+
   const onSubmit = async (e: FormExtendedEvent<SignUpFormValue, Element>) => {
     setSubmitting(true);
     const { email, username, password } = e.value;
 
     try {
-      console.log({ email, username, password });
-      throw new Error('Not implemented');
+      await signUpMutation({
+        variables: { input: { email, username, password } },
+      });
+
       router.push('/login');
     } catch (error) {
-      const { response } = error as AxiosError;
+      const { graphQLErrors } = error as ApolloError;
+      const [e] = graphQLErrors;
 
-      if (response?.status === 409) {
-        setError('The provided email is already in use.');
+      if (e.extensions.code === 'BAD_USER_INPUT') {
+        const res: any = e.extensions.response;
+        const [errorMessage] = res.message;
+        setError(String(errorMessage));
+        return;
+      }
+
+      if (e.extensions.code === '409') {
+        setError('Email or username already in use.');
         return;
       }
 

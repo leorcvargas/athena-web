@@ -3,6 +3,7 @@ import { Box, Button, Main } from 'grommet';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const Home: NextPage = () => {
   return (
@@ -13,22 +14,21 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Main pad="large">
-        <Box
-          direction="row"
-          border={{ color: 'brand', size: 'large' }}
-          pad="medium"
-          fill
-          gap="small"
-          justify="center"
-        >
-          <Link href="/login">
-            <Button label="Sign in" />
-          </Link>
+      <Main background="brand">
+        <Box direction="column" justify="center" align="center">
+          <Box margin={{ vertical: 'large' }}>
+            <Image src="/athena-logo.svg" width={300} height={300} />
+          </Box>
 
-          <Link href="/sign-up">
-            <Button primary label="Sign up" />
-          </Link>
+          <Box direction="column" width="medium" justify="center" gap="small">
+            <Link href="/login">
+              <Button label="Sign in" />
+            </Link>
+
+            <Link href="/sign-up">
+              <Button primary label="Sign up" />
+            </Link>
+          </Box>
         </Box>
       </Main>
     </>
