@@ -1,6 +1,6 @@
 import { useMutation } from '@apollo/client';
-import { Box, Button, Card, CardBody, CardFooter, Tip } from 'grommet';
-import { Trash, View, Hide } from 'grommet-icons';
+import { Box, Card, CardBody, CardHeader } from 'grommet';
+import { Drag } from 'grommet-icons';
 import React from 'react';
 
 import { UserLink, UserLinkKindEnum } from './gql/user-link.types';
@@ -18,13 +18,31 @@ import {
   DeleteUserLinkVars,
 } from './gql/delete-user-link.mutation';
 import { ResponsePayload } from '../shared/gql/response.payload';
+import { DropTargetMonitor, useDrag, useDrop, XYCoord } from 'react-dnd';
+import LinkItemFooter from './LinkItemFooter';
 
 interface Props {
+  id: number;
+  index: number;
   userLink: UserLink;
   refetchLinks(): Promise<void>;
+  moveItem(dragIndex: number, hoverIndex: number): void;
 }
 
-const LinkItem: React.FC<Props> = ({ userLink, refetchLinks }) => {
+interface DragItem {
+  index: number;
+  id: string;
+  type: string;
+}
+
+const LinkItem: React.FC<Props> = ({
+  id,
+  index,
+  userLink,
+  moveItem,
+  refetchLinks,
+}) => {
+  const cardRef = React.useRef<HTMLDivElement>(null);
   const titleInputRef = React.useRef<HTMLInputElement>(null);
   const [prevValues, setPrevValues] = React.useState<UserLink>(userLink);
   const [values, setValues] = React.useState<UserLink>(userLink);
@@ -33,28 +51,68 @@ const LinkItem: React.FC<Props> = ({ userLink, refetchLinks }) => {
   const hasChanges = React.useMemo(() => {
     return JSON.stringify(prevValues) !== JSON.stringify(values);
   }, [prevValues, values]);
-  const displayIcon = React.useMemo(
-    () =>
-      values.display ? <View color="accent-1" /> : <Hide color="accent-2" />,
-    [values.display]
-  );
-  const displayTip = React.useMemo(
-    () => (values.display ? 'Hide' : 'Show'),
-    [values.display]
-  );
 
   const [updateUserLinkMutation] = useMutation<UserLink, UpdateUserLinkVars>(
     updateUserLinkMutationGql
   );
-
   const [createUserLinkMutation] = useMutation<UserLink, CreateUserLinkVars>(
     createUserLinkMutationGql
   );
-
   const [deleteUserLinkMutation] = useMutation<
     ResponsePayload,
     DeleteUserLinkVars
   >(deleteUserLinkMutationGql);
+
+  const [{ handlerId }, drop] = useDrop({
+    accept: 'card',
+    collect(monitor) {
+      return {
+        handlerId: monitor.getHandlerId(),
+      };
+    },
+    hover(item: DragItem, monitor: DropTargetMonitor) {
+      if (!cardRef.current) {
+        return;
+      }
+      const dragIndex = item.index;
+      const hoverIndex = index;
+
+      if (dragIndex === hoverIndex) {
+        return;
+      }
+
+      const hoverBoundingRect = cardRef.current?.getBoundingClientRect();
+
+      const hoverMiddleY =
+        (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+
+      const clientOffset = monitor.getClientOffset();
+
+      const hoverClientY = (clientOffset as XYCoord).y - hoverBoundingRect.top;
+
+      if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
+        return;
+      }
+
+      if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
+        return;
+      }
+
+      moveItem(dragIndex, hoverIndex);
+
+      item.index = hoverIndex;
+    },
+  });
+
+  const [{ isDragging }, drag] = useDrag({
+    type: 'card',
+    item: () => {
+      return { id, index };
+    },
+    collect: (monitor: any) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
 
   const onBlur: React.FocusEventHandler<HTMLInputElement> = event => {
     event.preventDefault();
@@ -137,6 +195,9 @@ const LinkItem: React.FC<Props> = ({ userLink, refetchLinks }) => {
     }
   };
 
+  const onToggleDisplay = () =>
+    setValues({ ...values, display: !values.display });
+
   React.useEffect(() => {
     if (!created) {
       titleInputRef?.current?.focus();
@@ -149,14 +210,25 @@ const LinkItem: React.FC<Props> = ({ userLink, refetchLinks }) => {
     save();
   }, [editing, hasChanges]);
 
+  const opacity = isDragging ? 0 : 1;
+  drag(drop(cardRef));
   return (
     <Card
+      ref={cardRef}
       direction="row"
       round="small"
       gap="medium"
+      background="light-0"
       border={{ color: 'light-1' }}
-      animation="slideUp"
+      style={{ opacity }}
+      data-handler-id={handlerId}
     >
+      <CardHeader
+        border={{ color: 'light-3', side: 'right' }}
+        pad={{ horizontal: 'xxsmall' }}
+      >
+        <Drag />
+      </CardHeader>
       <CardBody>
         <Box pad="small" width="medium" gap="small">
           <LinkItemTitleInput
@@ -182,31 +254,12 @@ const LinkItem: React.FC<Props> = ({ userLink, refetchLinks }) => {
         </Box>
       </CardBody>
 
-      <CardFooter
-        pad={{ horizontal: 'small' }}
-        background="light-0"
-        border={{ color: 'light-3', side: 'left' }}
-        direction="column"
-        justify="evenly"
-        gap={undefined}
-      >
-        <Tip content={displayTip} dropProps={{ align: { left: 'right' } }}>
-          <Button
-            icon={displayIcon}
-            onClick={() => setValues({ ...values, display: !values.display })}
-            disabled={!created}
-            hoverIndicator
-          />
-        </Tip>
-        <Tip content="Delete link" dropProps={{ align: { left: 'right' } }}>
-          <Button
-            onClick={onDelete}
-            icon={<Trash color="" />}
-            disabled={!created}
-            hoverIndicator
-          />
-        </Tip>
-      </CardFooter>
+      <LinkItemFooter
+        linkDisplay={values.display}
+        onDelete={onDelete}
+        onToggleDisplay={onToggleDisplay}
+        disabled={!created}
+      />
     </Card>
   );
 };
