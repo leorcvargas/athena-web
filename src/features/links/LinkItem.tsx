@@ -21,7 +21,7 @@ import {
   deleteUserLinkMutationGql,
   DeleteUserLinkVars,
 } from './gql/delete-user-link.mutation';
-import { ResponsePayload } from '../shared/gql/response.payload';
+import { ResponsePayload } from '../shared/gql/types/response.payload';
 import { DropTargetMonitor, useDrag, useDrop, XYCoord } from 'react-dnd';
 import LinkItemFooter from './LinkItemFooter';
 
