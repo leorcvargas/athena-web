@@ -22,7 +22,6 @@ const LinkList: React.FC<Props> = ({ onCreate, refetchLinks, data = [] }) => {
 
   const moveItem = React.useCallback(
     (dragIndex: number, hoverIndex: number) => {
-      console.log(dragIndex, hoverIndex);
       const dragCard = links[dragIndex];
       setLinks(
         update(links, {

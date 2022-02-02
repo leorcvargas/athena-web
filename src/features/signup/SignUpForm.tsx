@@ -49,7 +49,6 @@ const SignUpForm: React.FC = () => {
       }
 
       setError('Unexpected error from server.');
-      console.log(error);
     } finally {
       setSubmitting(false);
     }
