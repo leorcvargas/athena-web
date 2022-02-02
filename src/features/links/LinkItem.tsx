@@ -4,7 +4,11 @@ import { Drag } from 'grommet-icons';
 import React from 'react';
 
 import { UserLink, UserLinkKindEnum } from './gql/user-link.types';
-import { LinkItemTextInput, LinkItemTitleInput } from './LinkItem.styles';
+import {
+  DragBox,
+  LinkItemTextInput,
+  LinkItemTitleInput,
+} from './LinkItem.styles';
 import {
   updateUserLinkMutationGql,
   UpdateUserLinkVars,
@@ -236,16 +240,18 @@ const LinkItem: React.FC<Props> = ({
       direction="row"
       round="small"
       gap="medium"
-      background="light-0"
-      border={{ color: 'light-1' }}
+      border={{ color: 'light-3' }}
       style={{ opacity: isDragging ? 0 : 1 }}
+      elevation={undefined}
       data-handler-id={handlerId}
     >
       <CardHeader
         border={{ color: 'light-3', side: 'right' }}
         pad={{ horizontal: 'xxsmall' }}
       >
-        <Drag />
+        <DragBox align="center" justify="center" fill>
+          <Drag />
+        </DragBox>
       </CardHeader>
       <CardBody>
         <Box pad="small" width="medium" gap="small">

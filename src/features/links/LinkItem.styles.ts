@@ -1,4 +1,4 @@
-import { TextInput } from 'grommet';
+import { Box, TextInput } from 'grommet';
 import styled, { css } from 'styled-components';
 
 const linkItemTextInputStyle = css`
@@ -16,4 +16,10 @@ export const LinkItemTextInput = styled(TextInput)`
 
 export const LinkItemTitleInput = styled(TextInput)`
   ${linkItemTextInputStyle}
+`;
+
+export const DragBox = styled(Box)`
+  &:hover {
+    cursor: grab;
+  }
 `;
