@@ -26,6 +26,7 @@ interface Props {
   index: number;
   userLink: UserLink;
   refetchLinks(): Promise<void>;
+  updatePositions(): Promise<void>;
   moveItem(dragIndex: number, hoverIndex: number): void;
 }
 
@@ -41,6 +42,7 @@ const LinkItem: React.FC<Props> = ({
   userLink,
   moveItem,
   refetchLinks,
+  updatePositions,
 }) => {
   const cardRef = React.useRef<HTMLDivElement>(null);
   const titleInputRef = React.useRef<HTMLInputElement>(null);
@@ -74,6 +76,11 @@ const LinkItem: React.FC<Props> = ({
       if (!cardRef.current) {
         return;
       }
+
+      if (!created) {
+        return;
+      }
+
       const dragIndex = item.index;
       const hoverIndex = index;
 
@@ -102,6 +109,9 @@ const LinkItem: React.FC<Props> = ({
 
       item.index = hoverIndex;
     },
+    drop: async () => {
+      await updatePositions();
+    },
   });
 
   const [{ isDragging }, drag] = useDrag({
@@ -112,6 +122,12 @@ const LinkItem: React.FC<Props> = ({
     collect: (monitor: any) => ({
       isDragging: monitor.isDragging(),
     }),
+    canDrag: () => {
+      if (!created) {
+        return false;
+      }
+      return true;
+    },
   });
 
   const onBlur: React.FocusEventHandler<HTMLInputElement> = event => {
@@ -157,6 +173,8 @@ const LinkItem: React.FC<Props> = ({
           title: values.title,
           url: values.url,
           kind: UserLinkKindEnum.BASIC,
+          position: index,
+          display: true,
         },
       },
     });
@@ -210,8 +228,8 @@ const LinkItem: React.FC<Props> = ({
     save();
   }, [editing, hasChanges]);
 
-  const opacity = isDragging ? 0 : 1;
   drag(drop(cardRef));
+
   return (
     <Card
       ref={cardRef}
@@ -220,7 +238,7 @@ const LinkItem: React.FC<Props> = ({
       gap="medium"
       background="light-0"
       border={{ color: 'light-1' }}
-      style={{ opacity }}
+      style={{ opacity: isDragging ? 0 : 1 }}
       data-handler-id={handlerId}
     >
       <CardHeader

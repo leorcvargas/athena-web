@@ -16,6 +16,7 @@ export interface UserLink {
   user: User | string;
   kind: UserLinkKind | string;
   display: boolean;
+  position: number;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;

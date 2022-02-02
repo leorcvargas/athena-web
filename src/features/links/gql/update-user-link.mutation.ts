@@ -1,14 +1,14 @@
 import { gql } from '@apollo/client';
 
-import { UserLinkInput } from './user-link.input';
+import { UpdateUserLinkInput } from './update-user-link.input';
 
 export interface UpdateUserLinkVars {
   id: number;
-  input: UserLinkInput;
+  input: UpdateUserLinkInput;
 }
 
 export const updateUserLinkMutationGql = gql`
-  mutation update($id: Int!, $input: UserLinkInput!) {
+  mutation update($id: Int!, $input: UpdateUserLinkInput!) {
     updateUserLink(id: $id, input: $input) {
       id
       title

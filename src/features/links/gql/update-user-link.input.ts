@@ -1,9 +1,8 @@
 import { UserLinkKindEnum } from './user-link.types';
 
-export interface UserLinkInput {
+export interface UpdateUserLinkInput {
   title?: string;
   url?: string;
   display?: boolean;
-  position?: number;
   kind?: UserLinkKindEnum;
 }
