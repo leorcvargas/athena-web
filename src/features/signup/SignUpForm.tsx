@@ -13,8 +13,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { AxiosError } from 'axios';
 
-import { signUp } from '../../services/auth';
-
 interface SignUpFormValue {
   email: string;
   username: string;
@@ -38,7 +36,8 @@ const SignUpForm: React.FC = () => {
     const { email, username, password } = e.value;
 
     try {
-      await signUp({ email, username, password });
+      console.log({ email, username, password });
+      throw new Error('Not implemented');
       router.push('/login');
     } catch (error) {
       const { response } = error as AxiosError;

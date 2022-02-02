@@ -12,7 +12,6 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
-import { storeAccessToken } from '../../services/auth';
 import { loginMutationGql } from './gql/login.mutation';
 import type { LoginInput, LoginPayload } from './gql/login.mutation';
 
@@ -41,9 +40,8 @@ const LoginForm: React.FC = () => {
       const { username, password } = e.value;
       const input = { username, password };
 
-      const { data } = await loginMutation({ variables: { input } });
+      await loginMutation({ variables: { input } });
 
-      storeAccessToken(data?.login?.accessToken ?? '');
       router.push('/app');
     } catch (error) {
       const { graphQLErrors } = error as ApolloError;

@@ -3,16 +3,19 @@ import { Avatar, Box, Button, DropButton, Image, Nav, Sidebar } from 'grommet';
 import * as Icons from 'grommet-icons';
 import { useRouter } from 'next/router';
 
-import client from '../apollo-client';
-import { destroyAccessToken } from '../services/auth';
+import { useMutation } from '@apollo/client';
+import { logoutMutationGql } from '../features/login/gql/logout.mutation';
 
 const AppSidebar: React.FC = () => {
+  const [logoutMutation] = useMutation(logoutMutationGql);
   const router = useRouter();
 
   const logout = async () => {
-    await client.clearStore();
-    destroyAccessToken();
-    router.push('/login');
+    try {
+      await logoutMutation();
+    } finally {
+      router.push('/login');
+    }
   };
 
   return (
